@@ -1,0 +1,8 @@
+{
+  "enabledPlugins": {
+    "apify-ultimate-scraper@apify-agent-skills": true,
+    "apify-actor-development@apify-agent-skills": true,
+    "apify-actorization@apify-agent-skills": true,
+    "apify-generate-output-schema@apify-agent-skills": true
+  }
+}

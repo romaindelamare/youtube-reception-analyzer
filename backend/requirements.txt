@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+apify-client
+langgraph
+langchain-mistralai
+langchain-core
+pydantic
+python-dotenv
