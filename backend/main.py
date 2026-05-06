@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger(__name__)
 
 from schemas.request import AnalyzeRequest
-from schemas.response import AnalyzeResponse, SentimentBreakdown
+from schemas.response import AnalyzeResponse, AnalysisBlock, SentimentBreakdown
 from graph import graph
 
 # Full-pipeline cache (Apify + LLM) keyed by YouTube URL.
@@ -54,11 +54,20 @@ async def analyze(body: AnalyzeRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
     response = AnalyzeResponse(
-        reception_label=result["reception_label"],
-        sentiment=SentimentBreakdown(**result["sentiment"]),
-        complaints=result["complaints"],
-        highlights=result["highlights"],
-        summary=result["summary"],
+        video=AnalysisBlock(
+            reception_label=result["reception_label"],
+            sentiment=SentimentBreakdown(**result["sentiment"]),
+            complaints=result["complaints"],
+            highlights=result["highlights"],
+            summary=result["summary"],
+        ),
+        topic=AnalysisBlock(
+            reception_label=result["topic_reception_label"],
+            sentiment=SentimentBreakdown(**result["topic_sentiment"]),
+            complaints=result["topic_complaints"],
+            highlights=result["topic_highlights"],
+            summary=result["topic_summary"],
+        ),
         comments_analyzed=len(result["comments"]),
     )
 

@@ -4,11 +4,16 @@ export interface SentimentBreakdown {
   negative: number;
 }
 
-export interface AnalyzeResponse {
+export interface AnalysisBlock {
   reception_label: "Positive" | "Mixed" | "Negative";
   sentiment: SentimentBreakdown;
   complaints: string[];
   highlights: string[];
   summary: string;
+}
+
+export interface AnalyzeResponse {
+  video: AnalysisBlock;
+  topic: AnalysisBlock;
   comments_analyzed: number;
 }

@@ -8,21 +8,21 @@ BATCH_SIZE = 50
 
 PROMPT = ChatPromptTemplate.from_messages([
     ("system", (
-        "You are a YouTube comment analyst. Your job is to evaluate how viewers received the VIDEO ITSELF — "
-        "not the subject matter or topic being discussed in the video.\n\n"
+        "You are a topic analyst. Your job is to analyze viewer opinions about the SUBJECT/TOPIC being discussed in the video, "
+        "NOT about the video itself or the creator.\n\n"
         "Focus exclusively on:\n"
-        "- The creator's explanation style, clarity, and teaching ability\n"
-        "- Video production quality (editing, pacing, structure, visuals)\n"
-        "- Whether the content was useful, relevant, or well-suited to the audience\n"
-        "- The creator's credibility, enthusiasm, or presentation\n"
-        "- Requests or suggestions directed at the creator\n\n"
-        "Ignore or deprioritize opinions about the topic itself (e.g. 'AI is great/bad'). "
-        "Only count those if the comment is specifically praising or criticizing how the creator covered the topic.\n\n"
+        "- Opinions about the subject matter (e.g., AI, machine learning, a technology, product, etc.)\n"
+        "- Viewer concerns, criticism, or praise directed at the topic itself\n"
+        "- How viewers feel about the broader subject, not the presentation\n\n"
+        "Ignore or deprioritize:\n"
+        "- Comments about video quality, creator style, or explanation clarity\n"
+        "- Technical feedback about the video production\n"
+        "- Only count production feedback if it relates to understanding the topic\n\n"
         "Return a JSON object with:\n"
         "- sentiments: list of 'positive', 'neutral', or 'negative' — one per comment, in order, "
-        "based on how the viewer feels about the VIDEO (not the topic)\n"
-        "- complaints: list of distinct recurring criticisms about the video or creator (max 10, deduplicated)\n"
-        "- highlights: list of distinct recurring positives about the video or creator (max 10, deduplicated)\n"
+        "based on how the viewer feels about the TOPIC/SUBJECT (not the video)\n"
+        "- complaints: list of distinct recurring criticisms about the topic itself (max 10, deduplicated)\n"
+        "- highlights: list of distinct recurring positives about the topic itself (max 10, deduplicated)\n"
         "Return only valid JSON matching the schema, nothing else."
     )),
     ("human", "Comments:\n{comments_text}"),
@@ -38,7 +38,7 @@ def _format_comments(comments: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def analyze_comments(state: AnalysisState) -> dict:
+def analyze_topic(state: AnalysisState) -> dict:
     comments = state["comments"]
     llm = build_mistral_llm()
     structured_llm = llm.with_structured_output(BatchAnalysis)
@@ -65,7 +65,6 @@ def analyze_comments(state: AnalysisState) -> dict:
         "negative": round(all_sentiments.count("negative") / total * 100, 1),
     }
 
-    # Deduplicate while preserving order
     def dedupe(items: list[str]) -> list[str]:
         seen: set[str] = set()
         result = []
@@ -77,7 +76,7 @@ def analyze_comments(state: AnalysisState) -> dict:
         return result
 
     return {
-        "sentiment": sentiment,
-        "complaints": dedupe(all_complaints)[:10],
-        "highlights": dedupe(all_highlights)[:10],
+        "topic_sentiment": sentiment,
+        "topic_complaints": dedupe(all_complaints)[:10],
+        "topic_highlights": dedupe(all_highlights)[:10],
     }

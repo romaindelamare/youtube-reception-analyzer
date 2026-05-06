@@ -7,7 +7,7 @@ def build_mistral_llm(temperature: float = 0.0) -> ChatMistralAI:
     if not api_key:
         raise RuntimeError("MISTRAL_API_KEY environment variable not set")
     return ChatMistralAI(
-        model="mistral-large-latest",
+        model="mistral-small-latest",
         temperature=temperature,
         mistral_api_key=api_key,
     )
